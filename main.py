@@ -77,8 +77,9 @@ class BookTrackerApp:
             messagebox.showerror("Ошибка ввода", "Все поля должны быть заполнены!")
             return None
 
-        if not pages_str.isdigit():
-            messagebox.showerror("Ошибка ввода", "Количество страниц должно быть числом!")
+        # ИСПРАВЛЕНО: Проверяем что число И больше 0
+        if not pages_str.isdigit() or int(pages_str) <= 0:
+            messagebox.showerror("Ошибка ввода", "Количество страниц должно быть числом больше 0!")
             return None
 
         return {
@@ -95,6 +96,10 @@ class BookTrackerApp:
 
         self.all_books.append(book)
         self.update_table(self.all_books)
+        
+        # ИСПРАВЛЕНО: Обновляем список жанров после добавления
+        self.update_genre_combo()
+        
         self.clear_fields()
         messagebox.showinfo("Успех", "Книга добавлена в список!")
 
@@ -143,10 +148,12 @@ class BookTrackerApp:
             messagebox.showerror("Ошибка загрузки", str(e))
 
     def update_genre_combo(self):
+        """Обновляет список жанров в выпадающем списке"""
         genres = sorted(set(b["genre"] for b in self.all_books))
         self.genre_filter["values"] = genres
 
     def update_table(self, books_list):
+        """Обновляет таблицу с книгами"""
         for i in self.tree.get_children():
             self.tree.delete(i)
         for book in books_list:
